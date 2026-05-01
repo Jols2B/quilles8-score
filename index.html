@@ -427,11 +427,22 @@ document.getElementById("competitionDate").addEventListener("input", e => {
    ================================ */
 
 document.querySelectorAll(".player-name").forEach(input => {
-  input.addEventListener("input", () => {
+  input.addEventListener("change", () => {
     if (!isAdmin) return;
 
     const team = input.dataset.team;
     const index = input.dataset.index;
+
+    if (!matchData.teams) {
+      matchData.teams = {
+        A: ["", "", "", ""],
+        B: ["", "", "", ""]
+      };
+    }
+
+    if (!matchData.teams[team]) {
+      matchData.teams[team] = ["", "", "", ""];
+    }
 
     matchData.teams[team][index] = input.value;
 
@@ -439,7 +450,6 @@ document.querySelectorAll(".player-name").forEach(input => {
     generateTable();
   });
 });
-
 
 /* ================================
    13. RÉINITIALISATION
