@@ -145,6 +145,22 @@ function calculate() {
   });
 }
 </script>
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAM0lcs5qFa_8NBnIdg7RZdL2TkWK6KQyc",
+  authDomain: "scores-quilles.firebaseapp.com",
+  projectId: "scores-quilles",
+  storageBucket: "scores-quilles.firebasestorage.app",
+  messagingSenderId: "188142820091",
+  appId: "1:188142820091:web:c2493f0b026440e3f66e5e"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 </body>
 </html>
