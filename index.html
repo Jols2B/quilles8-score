@@ -343,14 +343,13 @@ function generateTable() {
 
 function attachScoreListeners() {
   document.querySelectorAll(".score-input").forEach(input => {
-    input.addEventListener("input", () => {
+    input.addEventListener("change", () => {
       if (!isAdmin) return;
 
       const scoreId = input.dataset.scoreId;
       matchData.scores[scoreId] = input.value;
 
       saveData();
-      generateTable();
     });
   });
 }
