@@ -13,10 +13,10 @@ h1 { text-align:center; }
 .team { flex:1; min-width:250px; }
 input { width:100%; box-sizing:border-box; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc; font-size:16px; }
 button { padding:12px; border:none; border-radius:8px; background:#4CAF50; color:white; font-size:16px; cursor:pointer; width:100%; margin-top:10px; }
-table { width:100%; min-width:1500px; border-collapse:collapse; margin-top:15px; font-size:14px; }
+table { width:100%; min-width:700px; border-collapse:collapse; margin-top:10px; margin-bottom:25px; font-size:14px; }
 th, td { border:1px solid #ddd; padding:6px; text-align:center; }
 th { background:#4CAF50; color:white; }
-td input { text-align:center; padding:6px; }
+td input { text-align:center; padding:6px; min-width:45px; }
 .teamA { background:#d0ebff; }
 .teamB { background:#ffd6d6; }
 .status { text-align:center; font-weight:bold; padding:10px; border-radius:8px; margin-bottom:15px; }
@@ -24,12 +24,20 @@ td input { text-align:center; padding:6px; }
 .reader { background:#fff3cd; color:#856404; }
 .error { background:#ffd6d6; color:#8b0000; }
 
+h3 {
+  margin-top:25px;
+  background:#4CAF50;
+  color:white;
+  padding:10px;
+  border-radius:8px;
+}
+
 @media (max-width:600px) {
   body { padding:8px; font-size:14px; }
   .card { padding:12px; }
   h1 { font-size:22px; }
   h2 { font-size:18px; }
-  table { font-size:13px; }
+  table { font-size:13px; min-width:650px; }
 }
 </style>
 </head>
@@ -68,24 +76,7 @@ td input { text-align:center; padding:6px; }
 <div class="card">
 <h2>🧾 Feuille de match</h2>
 
-<table>
-<thead>
-<tr>
-<th rowspan="2">Équipe</th>
-<th rowspan="2">Joueur</th>
-<th colspan="10">Partie 1</th>
-<th colspan="10">Partie 2</th>
-<th colspan="10">Partie 3</th>
-<th rowspan="2">Total</th>
-</tr>
-<tr>
-<th>1m</th><th colspan="2">5m</th><th colspan="3">10m</th><th colspan="2">15m</th><th>20m</th><th>T</th>
-<th>1m</th><th colspan="2">5m</th><th colspan="3">10m</th><th colspan="2">15m</th><th>20m</th><th>T</th>
-<th>1m</th><th colspan="2">5m</th><th colspan="3">10m</th><th colspan="2">15m</th><th>20m</th><th>T</th>
-</tr>
-</thead>
-<tbody id="tableBody"></tbody>
-</table>
+<div id="tablesContainer"></div>
 
 <button id="resetBtn">Réinitialiser la compétition</button>
 </div>
@@ -166,51 +157,64 @@ function updateFields() {
 }
 
 function generateTable() {
-  const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = "";
+  const container = document.getElementById("tablesContainer");
+  container.innerHTML = "";
 
-  const lancers = [1, 2, 3, 2, 1];
+  const distances = ["1", "5", "5", "10", "10", "10", "15", "15", "20"];
 
-  ["A", "B"].forEach(team => {
-    for (let i = 0; i < 4; i++) {
-      const playerName = data.teams[team][i] || `Joueur ${i + 1}`;
-      let grandTotal = 0;
+  for (let partie = 0; partie < 3; partie++) {
+    let html = `
+      <h3>Partie ${partie + 1}</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Éq.</th>
+            <th>Joueur \\ dist.</th>
+            ${distances.map(d => `<th>${d}</th>`).join("")}
+            <th>T</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
 
-      let row = `<tr class="team${team}">
-        <td>${team}</td>
-        <td>${playerName}</td>`;
-
-      for (let partie = 0; partie < 3; partie++) {
+    ["A", "B"].forEach(team => {
+      for (let i = 0; i < 4; i++) {
+        const playerName = data.teams[team][i] || `Joueur ${i + 1}`;
         let totalPartie = 0;
-        let index = 0;
 
-        for (let d = 0; d < lancers.length; d++) {
-          for (let lancer = 0; lancer < lancers[d]; lancer++) {
-            const id = `${team}_${i}_${partie}_${index}`;
-            const value = data.scores[id] || "";
+        html += `<tr class="team${team}">
+          <td>${team}</td>
+          <td>${playerName}</td>`;
 
-            totalPartie += Number(value) || 0;
+        for (let scoreIndex = 0; scoreIndex < distances.length; scoreIndex++) {
+          const id = `${team}_${i}_${partie}_${scoreIndex}`;
+          const value = data.scores[id] || "";
 
-            row += `<td>
+          totalPartie += Number(value) || 0;
+
+          html += `
+            <td>
               <input type="number" min="0" value="${value}" data-score="${id}" ${isAdmin ? "" : "disabled"}>
-            </td>`;
-
-            index++;
-          }
+            </td>
+          `;
         }
 
-        grandTotal += totalPartie;
-        row += `<td><strong>${totalPartie}</strong></td>`;
+        html += `<td><strong>${totalPartie}</strong></td></tr>`;
       }
+    });
 
-      row += `<td><strong>${grandTotal}</strong></td></tr>`;
-      tbody.innerHTML += row;
-    }
-  });
+    html += `
+        </tbody>
+      </table>
+    `;
+
+    container.innerHTML += html;
+  }
 
   document.querySelectorAll("[data-score]").forEach(input => {
     input.addEventListener("change", () => {
       if (!isAdmin) return;
+
       data.scores[input.dataset.score] = input.value;
       save();
       generateTable();
@@ -277,6 +281,10 @@ document.getElementById("resetBtn").addEventListener("click", () => {
 if (!isAdmin) {
   document.getElementById("resetBtn").style.display = "none";
 }
+
+data = cleanData(data);
+updateFields();
+generateTable();
 </script>
 
 </body>
