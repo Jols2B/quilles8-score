@@ -177,8 +177,25 @@ function generateTable() {
       let row = `<tr class="team${team}">
         <td>${team}</td>
         <td>${playerName}</td>`;
+const lancers = [1, 2, 3, 2, 1];
 
-      for (let partie = 0; partie < 3; partie++) {
+let index = 0;
+
+for (let d = 0; d < lancers.length; d++) {
+  for (let l = 0; l < lancers[d]; l++) {
+
+    const id = `${team}_${i}_${partie}_${index}`;
+    const value = data.scores[id] || "";
+
+    totalPartie += Number(value) || 0;
+
+    row += `<td>
+      <input type="number" min="0" value="${value}" data-score="${id}" ${isAdmin ? "" : "disabled"}>
+    </td>`;
+
+    index++;
+  }
+} {
         let totalPartie = 0;
 
         for (let score = 0; score < 5; score++) {
