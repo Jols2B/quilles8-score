@@ -3,26 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quilles de 8</title>
+<title>Quilles de 8 - Match par équipes</title>
 
 <style>
-body { font-family: Arial; background:#eef2f7; padding:20px; margin:0; }
+body { font-family: Arial, sans-serif; background:#eef2f7; padding:20px; margin:0; }
 .card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); overflow-x:auto; }
 h1 { text-align:center; }
-
-input { width:100%; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc; }
-button { padding:12px; border:none; border-radius:8px; background:#4CAF50; color:white; width:100%; }
-
-table { width:100%; min-width:900px; border-collapse:collapse; }
+.teams { display:flex; gap:20px; flex-wrap:wrap; }
+.team { flex:1; min-width:250px; }
+input { width:100%; box-sizing:border-box; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc; font-size:16px; }
+button { padding:12px; border:none; border-radius:8px; background:#4CAF50; color:white; font-size:16px; cursor:pointer; width:100%; margin-top:10px; }
+table { width:100%; min-width:900px; border-collapse:collapse; margin-top:15px; font-size:14px; }
 th, td { border:1px solid #ddd; padding:6px; text-align:center; }
 th { background:#4CAF50; color:white; }
+td input { text-align:center; padding:6px; }
+.teamA { background:#d0ebff; }
+.teamB { background:#ffd6d6; }
+.status { text-align:center; font-weight:bold; padding:10px; border-radius:8px; margin-bottom:15px; }
+.admin { background:#d0f0d0; color:#1b5e20; }
+.reader { background:#fff3cd; color:#856404; }
+.error { background:#ffd6d6; color:#8b0000; }
 
-.status { text-align:center; padding:10px; border-radius:8px; margin-bottom:15px; }
-.admin { background:#d0f0d0; }
-.reader { background:#fff3cd; }
-
-@media (max-width:600px){
-  body{padding:8px;}
+@media (max-width:600px) {
+  body { padding:8px; font-size:14px; }
+  .card { padding:12px; }
+  h1 { font-size:22px; }
+  h2 { font-size:18px; }
+  table { font-size:13px; }
 }
 </style>
 </head>
@@ -30,158 +37,239 @@ th { background:#4CAF50; color:white; }
 <body>
 
 <h1>🏆 Match Quilles de 8</h1>
+
 <div id="modeStatus" class="status"></div>
+<div id="firebaseStatus" class="status">Connexion Firebase...</div>
 
 <div class="card">
-<input id="competitionName" placeholder="Nom compétition">
+<h2>📋 Informations compétition</h2>
+<input id="competitionName" placeholder="Nom de la compétition">
 <input id="competitionDate" type="date">
 </div>
 
-<div class="card">
-<h2>Équipes</h2>
-<input class="player" data-team="A" data-i="0" placeholder="A Joueur 1">
-<input class="player" data-team="A" data-i="1" placeholder="A Joueur 2">
-<input class="player" data-team="A" data-i="2" placeholder="A Joueur 3">
-<input class="player" data-team="A" data-i="3" placeholder="A Joueur 4">
+<div class="card teams">
+<div class="team">
+<h2>🔵 Équipe A</h2>
+<input class="teamA player-name" data-team="A" data-index="0" placeholder="Joueur 1">
+<input class="teamA player-name" data-team="A" data-index="1" placeholder="Joueur 2">
+<input class="teamA player-name" data-team="A" data-index="2" placeholder="Joueur 3">
+<input class="teamA player-name" data-team="A" data-index="3" placeholder="Joueur 4">
+</div>
 
-<input class="player" data-team="B" data-i="0" placeholder="B Joueur 1">
-<input class="player" data-team="B" data-i="1" placeholder="B Joueur 2">
-<input class="player" data-team="B" data-i="2" placeholder="B Joueur 3">
-<input class="player" data-team="B" data-i="3" placeholder="B Joueur 4">
+<div class="team">
+<h2>🔴 Équipe B</h2>
+<input class="teamB player-name" data-team="B" data-index="0" placeholder="Joueur 1">
+<input class="teamB player-name" data-team="B" data-index="1" placeholder="Joueur 2">
+<input class="teamB player-name" data-team="B" data-index="2" placeholder="Joueur 3">
+<input class="teamB player-name" data-team="B" data-index="3" placeholder="Joueur 4">
+</div>
 </div>
 
 <div class="card">
-<h2>Scores</h2>
+<h2>🧾 Feuille de match</h2>
+
 <table>
 <thead>
 <tr>
-<th>Équipe</th><th>Joueur</th><th>Scores</th><th>Total</th>
+<th>Équipe</th><th>Joueur</th>
+<th colspan="6">Partie 1</th>
+<th colspan="6">Partie 2</th>
+<th colspan="6">Partie 3</th>
+<th>Total</th>
+</tr>
+<tr>
+<th></th><th></th>
+<th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
+<th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
+<th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
+<th></th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
 
-<button id="reset">Reset</button>
+<button id="resetBtn">Réinitialiser la compétition</button>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
 <script>
-const ADMIN_CODE="1234";
-const isAdmin=new URLSearchParams(location.search).get("admin")===ADMIN_CODE;
+const ADMIN_CODE = "1234";
+const isAdmin = new URLSearchParams(window.location.search).get("admin") === ADMIN_CODE;
 
-document.getElementById("modeStatus").innerText=
-isAdmin?"Mode admin":"Mode lecture";
-
-const firebaseConfig={
-apiKey:"AIzaSyAM0lcs5qFa_8NBnIdg7RZdL2TkWK6KQyc",
-authDomain:"scores-quilles.firebaseapp.com",
-databaseURL:"https://scores-quilles-default-rtdb.firebaseio.com",
-projectId:"scores-quilles",
-storageBucket:"scores-quilles.firebasestorage.app",
-messagingSenderId:"188142820091",
-appId:"1:188142820091:web:c2493f0b026440e3f66e5e"
+const firebaseConfig = {
+  apiKey: "AIzaSyAM0lcs5qFa_8NBnIdg7RZdL2TkWK6KQyc",
+  authDomain: "scores-quilles.firebaseapp.com",
+  databaseURL: "https://scores-quilles-default-rtdb.firebaseio.com",
+  projectId: "scores-quilles",
+  storageBucket: "scores-quilles.firebasestorage.app",
+  messagingSenderId: "188142820091",
+  appId: "1:188142820091:web:c2493f0b026440e3f66e5e"
 };
+
+const modeStatus = document.getElementById("modeStatus");
+const firebaseStatus = document.getElementById("firebaseStatus");
+
+modeStatus.textContent = isAdmin ? "Mode admin : modification autorisée" : "Mode lecteur : consultation uniquement";
+modeStatus.className = isAdmin ? "status admin" : "status reader";
+
+let data = {
+  competitionName: "",
+  competitionDate: "",
+  teams: {
+    A: ["", "", "", ""],
+    B: ["", "", "", ""]
+  },
+  scores: {}
+};
+
+function cleanData(d) {
+  d = d || {};
+  return {
+    competitionName: d.competitionName || "",
+    competitionDate: d.competitionDate || "",
+    teams: {
+      A: [0,1,2,3].map(i => d.teams && d.teams.A && d.teams.A[i] ? d.teams.A[i] : ""),
+      B: [0,1,2,3].map(i => d.teams && d.teams.B && d.teams.B[i] ? d.teams.B[i] : "")
+    },
+    scores: d.scores || {}
+  };
+}
 
 firebase.initializeApp(firebaseConfig);
-const db=firebase.database().ref("match");
+const db = firebase.database();
+const matchRef = db.ref("competition-quilles8");
 
-let data={
-name:"",
-date:"",
-teams:{A:["","","",""],B:["","","",""]},
-scores:{}
-};
+function save() {
+  if (!isAdmin) return;
 
-function draw(){
-const tbody=document.getElementById("tableBody");
-tbody.innerHTML="";
-
-["A","B"].forEach(team=>{
-for(let i=0;i<4;i++){
-let name=data.teams[team][i]||"Joueur";
-let total=0;
-
-let row=`<tr><td>${team}</td><td>${name}</td><td>`;
-
-for(let j=0;j<5;j++){
-let id=`${team}_${i}_${j}`;
-let val=data.scores[id]||0;
-total+=Number(val);
-
-row+=`<input type="number" value="${val}" data-id="${id}" ${isAdmin?"":"disabled"}>`;
+  matchRef.set(data)
+    .then(() => {
+      firebaseStatus.textContent = "Firebase : données enregistrées";
+      firebaseStatus.className = "status admin";
+    })
+    .catch(error => {
+      firebaseStatus.textContent = "Erreur Firebase : " + error.message;
+      firebaseStatus.className = "status error";
+    });
 }
 
-row+=`</td><td>${total}</td></tr>`;
-tbody.innerHTML+=row;
+function updateFields() {
+  document.getElementById("competitionName").value = data.competitionName;
+  document.getElementById("competitionDate").value = data.competitionDate;
+
+  document.querySelectorAll(".player-name").forEach(input => {
+    const team = input.dataset.team;
+    const index = Number(input.dataset.index);
+    input.value = data.teams[team][index] || "";
+  });
 }
+
+function generateTable() {
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
+
+  ["A", "B"].forEach(team => {
+    for (let i = 0; i < 4; i++) {
+      const playerName = data.teams[team][i] || `Joueur ${i + 1}`;
+      let grandTotal = 0;
+
+      let row = `<tr class="team${team}">
+        <td>${team}</td>
+        <td>${playerName}</td>`;
+
+      for (let partie = 0; partie < 3; partie++) {
+        let totalPartie = 0;
+
+        for (let score = 0; score < 5; score++) {
+          const id = `${team}_${i}_${partie}_${score}`;
+          const value = data.scores[id] || "";
+          totalPartie += Number(value) || 0;
+
+          row += `<td>
+            <input type="number" min="0" value="${value}" data-score="${id}" ${isAdmin ? "" : "disabled"}>
+          </td>`;
+        }
+
+        grandTotal += totalPartie;
+        row += `<td><strong>${totalPartie}</strong></td>`;
+      }
+
+      row += `<td><strong>${grandTotal}</strong></td></tr>`;
+      tbody.innerHTML += row;
+    }
+  });
+
+  document.querySelectorAll("[data-score]").forEach(input => {
+    input.addEventListener("change", () => {
+      if (!isAdmin) return;
+      data.scores[input.dataset.score] = input.value;
+      save();
+      generateTable();
+    });
+  });
+}
+
+matchRef.on("value", snapshot => {
+  data = cleanData(snapshot.val());
+  firebaseStatus.textContent = "Firebase : connecté";
+  firebaseStatus.className = "status admin";
+  updateFields();
+  generateTable();
+}, error => {
+  firebaseStatus.textContent = "Erreur Firebase : " + error.message;
+  firebaseStatus.className = "status error";
 });
 
-document.querySelectorAll("[data-id]").forEach(inp=>{
-inp.onchange=()=>{
-if(!isAdmin)return;
-data.scores[inp.dataset.id]=inp.value;
-save();
-};
-});
-}
-
-function save(){
-db.set(data);
-}
-
-db.on("value",snap=>{
-if(snap.val())data=snap.val();
-update();
-draw();
+document.getElementById("competitionName").addEventListener("change", e => {
+  if (!isAdmin) return;
+  data.competitionName = e.target.value;
+  save();
 });
 
-function update(){
-document.getElementById("competitionName").value=data.name||"";
-document.getElementById("competitionDate").value=data.date||"";
-
-document.querySelectorAll(".player").forEach(inp=>{
-let t=inp.dataset.team;
-let i=inp.dataset.i;
-inp.value=data.teams[t][i]||"";
+document.getElementById("competitionDate").addEventListener("change", e => {
+  if (!isAdmin) return;
+  data.competitionDate = e.target.value;
+  save();
 });
 
-if(!isAdmin){
-document.querySelectorAll("input").forEach(i=>i.disabled=true);
-document.getElementById("reset").style.display="none";
-}
-}
+document.querySelectorAll(".player-name").forEach(input => {
+  input.addEventListener("change", () => {
+    if (!isAdmin) return;
 
-document.getElementById("competitionName").onchange=e=>{
-if(!isAdmin)return;
-data.name=e.target.value;
-save();
-};
+    const team = input.dataset.team;
+    const index = Number(input.dataset.index);
 
-document.getElementById("competitionDate").onchange=e=>{
-if(!isAdmin)return;
-data.date=e.target.value;
-save();
-};
-
-document.querySelectorAll(".player").forEach(inp=>{
-inp.onchange=()=>{
-if(!isAdmin)return;
-data.teams[inp.dataset.team][inp.dataset.i]=inp.value;
-save();
-draw();
-};
+    data.teams[team][index] = input.value;
+    save();
+    generateTable();
+  });
 });
 
-document.getElementById("reset").onclick=()=>{
-if(!isAdmin)return;
-if(confirm("Reset ?")){
-data={name:"",date:"",teams:{A:["","","",""],B:["","","",""]},scores:{}};
-save();
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!isAdmin) return;
+
+  if (!confirm("Réinitialiser toute la compétition ?")) return;
+
+  data = {
+    competitionName: "",
+    competitionDate: "",
+    teams: {
+      A: ["", "", "", ""],
+      B: ["", "", "", ""]
+    },
+    scores: {}
+  };
+
+  save();
+  updateFields();
+  generateTable();
+});
+
+if (!isAdmin) {
+  document.getElementById("resetBtn").style.display = "none";
 }
-};
 </script>
 
 </body>
