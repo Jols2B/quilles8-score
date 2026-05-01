@@ -3,82 +3,294 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quilles de 8 - Match par équipes</title>
+<title>Quilles de 8 - Scores</title>
 
 <style>
-body { font-family: Arial, sans-serif; background:#eef2f7; padding:20px; margin:0; }
-.card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); overflow-x:auto; }
-h1 { text-align:center; }
-.teams { display:flex; gap:20px; flex-wrap:wrap; }
-.team { flex:1; min-width:250px; }
-input { width:100%; box-sizing:border-box; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc; font-size:16px; }
-button { padding:12px; border:none; border-radius:8px; background:#4CAF50; color:white; font-size:16px; cursor:pointer; width:100%; margin-top:10px; }
-table { width:100%; min-width:700px; border-collapse:collapse; margin-top:10px; margin-bottom:25px; font-size:14px; }
-th, td { border:1px solid #ddd; padding:6px; text-align:center; }
-th { background:#4CAF50; color:white; }
-td input { text-align:center; padding:6px; min-width:45px; }
-.teamA { background:#d0ebff; }
-.teamB { background:#ffd6d6; }
-.status { text-align:center; font-weight:bold; padding:10px; border-radius:8px; margin-bottom:15px; }
-.admin { background:#d0f0d0; color:#1b5e20; }
+:root {
+  --green:#2f9e44;
+  --green-dark:#1b7f32;
+  --blue:#d8efff;
+  --red:#ffe0e0;
+  --bg:#eef2f7;
+  --card:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --yellow:#fff3bf;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header {
+  background:linear-gradient(135deg, var(--green), var(--green-dark));
+  color:white;
+  padding:22px 16px;
+  text-align:center;
+}
+
+header h1 {
+  margin:0;
+  font-size:26px;
+}
+
+header p {
+  margin:8px 0 0;
+  opacity:.95;
+}
+
+.container {
+  max-width:1200px;
+  margin:0 auto;
+  padding:16px;
+}
+
+.card {
+  background:var(--card);
+  border-radius:16px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+}
+
+.status {
+  padding:10px;
+  border-radius:10px;
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.admin { background:#d3f9d8; color:#1b5e20; }
 .reader { background:#fff3cd; color:#856404; }
 .error { background:#ffd6d6; color:#8b0000; }
 
-h3 {
-  margin-top:25px;
-  background:#4CAF50;
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:12px;
+}
+
+input {
+  width:100%;
+  padding:11px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  font-size:16px;
+}
+
+input:disabled {
+  background:#f8fafc;
+  color:#111827;
+}
+
+button {
+  border:none;
+  border-radius:10px;
+  padding:12px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  background:var(--green);
   color:white;
-  padding:10px;
-  border-radius:8px;
+  width:100%;
+}
+
+button.secondary { background:#2563eb; }
+button.warning { background:#f59f00; }
+button.danger { background:#e03131; }
+
+.summary {
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+  gap:12px;
+}
+
+.summary-box {
+  background:#f8fafc;
+  border-radius:14px;
+  padding:14px;
+  text-align:center;
+  border:1px solid #e5e7eb;
+}
+
+.summary-box strong {
+  display:block;
+  font-size:28px;
+  margin-top:6px;
+}
+
+.teamA { background:var(--blue); }
+.teamB { background:var(--red); }
+
+.partie-title {
+  background:var(--green);
+  color:white;
+  padding:12px;
+  border-radius:12px;
+  margin:24px 0 10px;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.table-wrap {
+  overflow-x:auto;
+  border-radius:12px;
+}
+
+table {
+  width:100%;
+  min-width:720px;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+th, td {
+  border:1px solid #d8dee9;
+  padding:6px;
+  text-align:center;
+}
+
+th {
+  background:var(--green);
+  color:white;
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+
+td.player-cell {
+  font-weight:bold;
+  text-align:left;
+  min-width:130px;
+  position:sticky;
+  left:0;
+  z-index:1;
+}
+
+.teamA td.player-cell { background:var(--blue); }
+.teamB td.player-cell { background:var(--red); }
+
+.score-input {
+  max-width:58px;
+  text-align:center;
+  padding:8px 4px;
+}
+
+.total-cell {
+  background:var(--yellow);
+  font-weight:bold;
+  font-size:16px;
+}
+
+.public-value {
+  font-weight:bold;
+  font-size:16px;
+}
+
+.hidden { display:none; }
+
+.nav-buttons {
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:8px;
+  margin-bottom:12px;
 }
 
 @media (max-width:600px) {
-  body { padding:8px; font-size:14px; }
-  .card { padding:12px; }
-  h1 { font-size:22px; }
-  h2 { font-size:18px; }
-  table { font-size:13px; min-width:650px; }
+  header h1 { font-size:22px; }
+  .container { padding:10px; }
+  .card { padding:12px; border-radius:12px; }
+  table { font-size:13px; min-width:680px; }
+  .score-input { max-width:50px; }
 }
 </style>
 </head>
 
 <body>
 
-<h1>🏆 Match Quilles de 8</h1>
+<header>
+  <h1>🏆 Quilles de 8 - Scores</h1>
+  <p id="headerInfo">Suivi de compétition en direct</p>
+</header>
+
+<div class="container">
 
 <div id="modeStatus" class="status"></div>
 <div id="firebaseStatus" class="status">Connexion Firebase...</div>
 
-<div class="card">
-<h2>📋 Informations compétition</h2>
-<input id="competitionName" placeholder="Nom de la compétition">
-<input id="competitionDate" type="date">
-</div>
-
-<div class="card teams">
-<div class="team">
-<h2>🔵 Équipe A</h2>
-<input class="teamA player-name" data-team="A" data-index="0" placeholder="Joueur 1">
-<input class="teamA player-name" data-team="A" data-index="1" placeholder="Joueur 2">
-<input class="teamA player-name" data-team="A" data-index="2" placeholder="Joueur 3">
-<input class="teamA player-name" data-team="A" data-index="3" placeholder="Joueur 4">
-</div>
-
-<div class="team">
-<h2>🔴 Équipe B</h2>
-<input class="teamB player-name" data-team="B" data-index="0" placeholder="Joueur 1">
-<input class="teamB player-name" data-team="B" data-index="1" placeholder="Joueur 2">
-<input class="teamB player-name" data-team="B" data-index="2" placeholder="Joueur 3">
-<input class="teamB player-name" data-team="B" data-index="3" placeholder="Joueur 4">
-</div>
+<div class="card" id="adminActions">
+  <h2>⚙️ Actions admin</h2>
+  <div class="grid">
+    <button class="secondary" id="copyPublicLink">Copier le lien public</button>
+    <button class="warning" id="clearScoresBtn">Vider seulement les scores</button>
+    <button class="danger" id="resetBtn">Réinitialiser toute la compétition</button>
+  </div>
 </div>
 
 <div class="card">
-<h2>🧾 Feuille de match</h2>
+  <h2>📋 Informations compétition</h2>
+  <div class="grid">
+    <input id="competitionName" placeholder="Nom de la compétition">
+    <input id="competitionDate" type="date">
+  </div>
+</div>
 
-<div id="tablesContainer"></div>
+<div class="card">
+  <h2>📊 Résumé</h2>
+  <div class="summary">
+    <div class="summary-box">
+      Équipe A
+      <strong id="totalA">0</strong>
+    </div>
+    <div class="summary-box">
+      Équipe B
+      <strong id="totalB">0</strong>
+    </div>
+    <div class="summary-box">
+      Meilleur joueur
+      <strong id="bestPlayer">-</strong>
+    </div>
+  </div>
+</div>
 
-<button id="resetBtn">Réinitialiser la compétition</button>
+<div class="card">
+  <h2>👥 Équipes</h2>
+  <div class="grid">
+    <div>
+      <h3>🔵 Équipe A</h3>
+      <input class="teamA player-name" data-team="A" data-index="0" placeholder="Joueur 1">
+      <input class="teamA player-name" data-team="A" data-index="1" placeholder="Joueur 2">
+      <input class="teamA player-name" data-team="A" data-index="2" placeholder="Joueur 3">
+      <input class="teamA player-name" data-team="A" data-index="3" placeholder="Joueur 4">
+    </div>
+    <div>
+      <h3>🔴 Équipe B</h3>
+      <input class="teamB player-name" data-team="B" data-index="0" placeholder="Joueur 1">
+      <input class="teamB player-name" data-team="B" data-index="1" placeholder="Joueur 2">
+      <input class="teamB player-name" data-team="B" data-index="2" placeholder="Joueur 3">
+      <input class="teamB player-name" data-team="B" data-index="3" placeholder="Joueur 4">
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>🧾 Feuille de match</h2>
+
+  <div class="nav-buttons">
+    <button onclick="scrollToPartie(1)">Partie 1</button>
+    <button onclick="scrollToPartie(2)">Partie 2</button>
+    <button onclick="scrollToPartie(3)">Partie 3</button>
+  </div>
+
+  <div id="tablesContainer"></div>
+</div>
+
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -98,11 +310,9 @@ const firebaseConfig = {
   appId: "1:188142820091:web:c2493f0b026440e3f66e5e"
 };
 
-const modeStatus = document.getElementById("modeStatus");
-const firebaseStatus = document.getElementById("firebaseStatus");
-
-modeStatus.textContent = isAdmin ? "Mode admin : modification autorisée" : "Mode lecteur : consultation uniquement";
-modeStatus.className = isAdmin ? "status admin" : "status reader";
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const matchRef = db.ref("competition-quilles8");
 
 let data = {
   competitionName: "",
@@ -127,9 +337,15 @@ function cleanData(d) {
   };
 }
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const matchRef = db.ref("competition-quilles8");
+const modeStatus = document.getElementById("modeStatus");
+const firebaseStatus = document.getElementById("firebaseStatus");
+
+modeStatus.textContent = isAdmin ? "Mode admin : modification autorisée" : "Mode lecteur : consultation uniquement";
+modeStatus.className = isAdmin ? "status admin" : "status reader";
+
+if (!isAdmin) {
+  document.getElementById("adminActions").classList.add("hidden");
+}
 
 function save() {
   if (!isAdmin) return;
@@ -149,11 +365,55 @@ function updateFields() {
   document.getElementById("competitionName").value = data.competitionName;
   document.getElementById("competitionDate").value = data.competitionDate;
 
+  document.getElementById("headerInfo").textContent =
+    (data.competitionName || "Suivi de compétition en direct") +
+    (data.competitionDate ? " - " + data.competitionDate : "");
+
   document.querySelectorAll(".player-name").forEach(input => {
     const team = input.dataset.team;
     const index = Number(input.dataset.index);
     input.value = data.teams[team][index] || "";
+    input.disabled = !isAdmin;
   });
+
+  document.getElementById("competitionName").disabled = !isAdmin;
+  document.getElementById("competitionDate").disabled = !isAdmin;
+}
+
+function getPlayerTotal(team, playerIndex) {
+  let total = 0;
+  for (let partie = 0; partie < 3; partie++) {
+    for (let scoreIndex = 0; scoreIndex < 9; scoreIndex++) {
+      const id = `${team}_${playerIndex}_${partie}_${scoreIndex}`;
+      total += Number(data.scores[id]) || 0;
+    }
+  }
+  return total;
+}
+
+function updateSummary() {
+  let totalA = 0;
+  let totalB = 0;
+  let bestName = "-";
+  let bestScore = -1;
+
+  ["A", "B"].forEach(team => {
+    for (let i = 0; i < 4; i++) {
+      const playerTotal = getPlayerTotal(team, i);
+      if (team === "A") totalA += playerTotal;
+      if (team === "B") totalB += playerTotal;
+
+      const name = data.teams[team][i] || `Joueur ${i + 1}`;
+      if (playerTotal > bestScore) {
+        bestScore = playerTotal;
+        bestName = `${name} (${playerTotal})`;
+      }
+    }
+  });
+
+  document.getElementById("totalA").textContent = totalA;
+  document.getElementById("totalB").textContent = totalB;
+  document.getElementById("bestPlayer").textContent = bestScore > 0 ? bestName : "-";
 }
 
 function generateTable() {
@@ -164,7 +424,8 @@ function generateTable() {
 
   for (let partie = 0; partie < 3; partie++) {
     let html = `
-      <h3>Partie ${partie + 1}</h3>
+      <div class="partie-title" id="partie-${partie + 1}">Partie ${partie + 1}</div>
+      <div class="table-wrap">
       <table>
         <thead>
           <tr>
@@ -184,28 +445,32 @@ function generateTable() {
 
         html += `<tr class="team${team}">
           <td>${team}</td>
-          <td>${playerName}</td>`;
+          <td class="player-cell">${playerName}</td>`;
 
         for (let scoreIndex = 0; scoreIndex < distances.length; scoreIndex++) {
           const id = `${team}_${i}_${partie}_${scoreIndex}`;
           const value = data.scores[id] || "";
-
           totalPartie += Number(value) || 0;
 
-          html += `
-            <td>
-              <input type="number" min="0" value="${value}" data-score="${id}" ${isAdmin ? "" : "disabled"}>
-            </td>
-          `;
+          html += `<td>`;
+
+          if (isAdmin) {
+            html += `<input class="score-input" type="number" min="0" value="${value}" data-score="${id}">`;
+          } else {
+            html += `<span class="public-value">${value || "-"}</span>`;
+          }
+
+          html += `</td>`;
         }
 
-        html += `<td><strong>${totalPartie}</strong></td></tr>`;
+        html += `<td class="total-cell">${totalPartie}</td></tr>`;
       }
     });
 
     html += `
         </tbody>
       </table>
+      </div>
     `;
 
     container.innerHTML += html;
@@ -214,10 +479,10 @@ function generateTable() {
   document.querySelectorAll("[data-score]").forEach(input => {
     input.addEventListener("change", () => {
       if (!isAdmin) return;
-
       data.scores[input.dataset.score] = input.value;
       save();
       generateTable();
+      updateSummary();
     });
   });
 }
@@ -228,6 +493,7 @@ matchRef.on("value", snapshot => {
   firebaseStatus.className = "status admin";
   updateFields();
   generateTable();
+  updateSummary();
 }, error => {
   firebaseStatus.textContent = "Erreur Firebase : " + error.message;
   firebaseStatus.className = "status error";
@@ -237,12 +503,14 @@ document.getElementById("competitionName").addEventListener("change", e => {
   if (!isAdmin) return;
   data.competitionName = e.target.value;
   save();
+  updateFields();
 });
 
 document.getElementById("competitionDate").addEventListener("change", e => {
   if (!isAdmin) return;
   data.competitionDate = e.target.value;
   save();
+  updateFields();
 });
 
 document.querySelectorAll(".player-name").forEach(input => {
@@ -255,12 +523,23 @@ document.querySelectorAll(".player-name").forEach(input => {
     data.teams[team][index] = input.value;
     save();
     generateTable();
+    updateSummary();
+    updateFields();
   });
+});
+
+document.getElementById("clearScoresBtn").addEventListener("click", () => {
+  if (!isAdmin) return;
+  if (!confirm("Vider seulement les scores ?")) return;
+
+  data.scores = {};
+  save();
+  generateTable();
+  updateSummary();
 });
 
 document.getElementById("resetBtn").addEventListener("click", () => {
   if (!isAdmin) return;
-
   if (!confirm("Réinitialiser toute la compétition ?")) return;
 
   data = {
@@ -276,15 +555,26 @@ document.getElementById("resetBtn").addEventListener("click", () => {
   save();
   updateFields();
   generateTable();
+  updateSummary();
 });
 
-if (!isAdmin) {
-  document.getElementById("resetBtn").style.display = "none";
+document.getElementById("copyPublicLink").addEventListener("click", () => {
+  const publicUrl = window.location.href.split("?")[0];
+  navigator.clipboard.writeText(publicUrl);
+  alert("Lien public copié !");
+});
+
+function scrollToPartie(numero) {
+  document.getElementById(`partie-${numero}`).scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 }
 
 data = cleanData(data);
 updateFields();
 generateTable();
+updateSummary();
 </script>
 
 </body>
