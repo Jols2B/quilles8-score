@@ -1,166 +1,473 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Quilles de 8 - Match par équipes</title>
+
 <style>
-  body { font-family: Arial; background:#eef2f7; padding:20px; }
-  .card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-  h1 { text-align:center; }
-  .teams { display:flex; gap:20px; flex-wrap:wrap; }
-  .team { flex:1; }
-  input { width:100%; padding:8px; margin:5px 0; border-radius:6px; border:1px solid #ccc; }
-  button { padding:12px; border:none; border-radius:8px; background:#4CAF50; color:white; font-size:16px; cursor:pointer; width:100%; }
-  table { width:100%; border-collapse:collapse; margin-top:15px; font-size:14px; }
-  th, td { border:1px solid #ddd; padding:6px; text-align:center; }
-  th { background:#4CAF50; color:white; }
-  .teamA { background:#d0ebff; }
-  .teamB { background:#ffd6d6; }
-  /* 📱 Optimisation mobile */
-.card {
-  overflow-x: auto;
-}
-
-table {
-  min-width: 900px;
-}
-
-@media (max-width: 600px) {
   body {
-    padding: 8px;
-    font-size: 14px;
+    font-family: Arial, sans-serif;
+    background:#eef2f7;
+    padding:20px;
+    margin:0;
   }
 
   .card {
-    padding: 12px;
+    background:white;
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    overflow-x:auto;
   }
 
   h1 {
-    font-size: 22px;
+    text-align:center;
   }
 
   h2 {
-    font-size: 18px;
+    margin-top:0;
   }
 
-  input, button {
-    font-size: 16px;
+  .teams {
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
   }
-}
+
+  .team {
+    flex:1;
+    min-width:250px;
+  }
+
+  input {
+    width:100%;
+    box-sizing:border-box;
+    padding:8px;
+    margin:5px 0;
+    border-radius:6px;
+    border:1px solid #ccc;
+    font-size:16px;
+  }
+
+  input:disabled {
+    background:#f3f3f3;
+    color:#333;
+  }
+
+  button {
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#4CAF50;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+    width:100%;
+    margin-top:10px;
+  }
+
+  table {
+    width:100%;
+    min-width:900px;
+    border-collapse:collapse;
+    margin-top:15px;
+    font-size:14px;
+  }
+
+  th, td {
+    border:1px solid #ddd;
+    padding:6px;
+    text-align:center;
+  }
+
+  th {
+    background:#4CAF50;
+    color:white;
+  }
+
+  td input {
+    text-align:center;
+    padding:6px;
+  }
+
+  .teamA {
+    background:#d0ebff;
+  }
+
+  .teamB {
+    background:#ffd6d6;
+  }
+
+  .status {
+    text-align:center;
+    font-weight:bold;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:15px;
+  }
+
+  .admin {
+    background:#d0f0d0;
+    color:#1b5e20;
+  }
+
+  .reader {
+    background:#fff3cd;
+    color:#856404;
+  }
+
+  @media (max-width:600px) {
+    body {
+      padding:8px;
+      font-size:14px;
+    }
+
+    .card {
+      padding:12px;
+    }
+
+    h1 {
+      font-size:22px;
+    }
+
+    h2 {
+      font-size:18px;
+    }
+
+    table {
+      font-size:13px;
+    }
+  }
 </style>
 </head>
+
 <body>
 
-<h1>🏆 Match Quilles de 8 (2 équipes)</h1>
+<h1>🏆 Match Quilles de 8</h1>
+
+<div id="modeStatus" class="status"></div>
 
 <div class="card">
-<h2>📋 Informations compétition</h2>
-<input id="competitionName" placeholder="Nom de la compétition">
-<input id="competitionDate" type="date">
+  <h2>📋 Informations compétition</h2>
+  <input id="competitionName" placeholder="Nom de la compétition">
+  <input id="competitionDate" type="date">
 </div>
 
 <div class="card teams">
-<div class="team">
-<h2>🔵 Équipe A</h2>
-<input class="teamA" placeholder="Joueur 1" id="A0">
-<input class="teamA" placeholder="Joueur 2" id="A1">
-<input class="teamA" placeholder="Joueur 3" id="A2">
-<input class="teamA" placeholder="Joueur 4" id="A3">
-</div>
+  <div class="team">
+    <h2>🔵 Équipe A</h2>
+    <input class="teamA player-name" data-team="A" data-index="0" placeholder="Joueur 1">
+    <input class="teamA player-name" data-team="A" data-index="1" placeholder="Joueur 2">
+    <input class="teamA player-name" data-team="A" data-index="2" placeholder="Joueur 3">
+    <input class="teamA player-name" data-team="A" data-index="3" placeholder="Joueur 4">
+  </div>
 
-<div class="team">
-<h2>🔴 Équipe B</h2>
-<input class="teamB" placeholder="Joueur 1" id="B0">
-<input class="teamB" placeholder="Joueur 2" id="B1">
-<input class="teamB" placeholder="Joueur 3" id="B2">
-<input class="teamB" placeholder="Joueur 4" id="B3">
-</div>
+  <div class="team">
+    <h2>🔴 Équipe B</h2>
+    <input class="teamB player-name" data-team="B" data-index="0" placeholder="Joueur 1">
+    <input class="teamB player-name" data-team="B" data-index="1" placeholder="Joueur 2">
+    <input class="teamB player-name" data-team="B" data-index="2" placeholder="Joueur 3">
+    <input class="teamB player-name" data-team="B" data-index="3" placeholder="Joueur 4">
+  </div>
 </div>
 
 <div class="card">
-<h2>🧾 Feuille de match</h2>
-<table id="scoreTable">
-<thead>
-<tr>
-<th>Équipe</th><th>Joueur</th>
-<th colspan="6">Partie 1</th>
-<th colspan="6">Partie 2</th>
-<th colspan="6">Partie 3</th>
-<th>Total</th>
-</tr>
-<tr>
-<th></th><th></th>
-<th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
-<th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
-<th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
-<th></th>
-</tr>
-</thead>
-<tbody id="tableBody"></tbody>
-</table>
+  <h2>🧾 Feuille de match</h2>
 
-<button onclick="generateTable()">Générer la feuille</button>
-<button onclick="calculate()">Calculer les scores</button>
+  <table id="scoreTable">
+    <thead>
+      <tr>
+        <th>Équipe</th>
+        <th>Joueur</th>
+        <th colspan="6">Partie 1</th>
+        <th colspan="6">Partie 2</th>
+        <th colspan="6">Partie 3</th>
+        <th>Total</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th></th>
+        <th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
+        <th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
+        <th>1</th><th>5</th><th>10</th><th>15</th><th>20</th><th>T</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <button id="resetBtn">Réinitialiser la compétition</button>
 </div>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
 <script>
+/* ================================
+   1. CODE ADMIN
+   ================================ */
+
+const ADMIN_CODE = "1234";
+
+const params = new URLSearchParams(window.location.search);
+const isAdmin = params.get("admin") === ADMIN_CODE;
+
+/*
+  Lien admin :
+  https://tonsite.github.io/quilles8-score/?admin=1234
+
+  Lien lecteur :
+  https://tonsite.github.io/quilles8-score/
+*/
+
+
+/* ================================
+   2. CONFIG FIREBASE
+   Remplace tout ce bloc par ta config
+   ================================ */
+
+const firebaseConfig = {
+  apiKey: "COLLE_ICI_TON_API_KEY",
+  authDomain: "COLLE_ICI.firebaseapp.com",
+  databaseURL: "https://COLLE_ICI-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "COLLE_ICI",
+  storageBucket: "COLLE_ICI.appspot.com",
+  messagingSenderId: "COLLE_ICI",
+  appId: "COLLE_ICI"
+};
+
+
+/* ================================
+   3. INITIALISATION FIREBASE
+   ================================ */
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const matchRef = db.ref("competition-quilles8");
+
+
+/* ================================
+   4. DONNÉES PAR DÉFAUT
+   ================================ */
+
+let matchData = {
+  competitionName: "",
+  competitionDate: "",
+  teams: {
+    A: ["", "", "", ""],
+    B: ["", "", "", ""]
+  },
+  scores: {}
+};
+
+
+/* ================================
+   5. AFFICHAGE MODE
+   ================================ */
+
+const modeStatus = document.getElementById("modeStatus");
+
+if (isAdmin) {
+  modeStatus.textContent = "Mode admin : tu peux modifier les scores";
+  modeStatus.className = "status admin";
+} else {
+  modeStatus.textContent = "Mode lecteur : consultation des scores uniquement";
+  modeStatus.className = "status reader";
+}
+
+
+/* ================================
+   6. GÉNÉRER LE TABLEAU
+   ================================ */
+
 function generateTable() {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
 
-  ['A','B'].forEach(team => {
-    for (let i = 0; i < 4; i++) {
-      const name = document.getElementById(team + i).value || `Joueur ${i+1}`;
-      let row = `<tr class="team${team}"><td>${team}</td><td>${name}</td>`;
+  ["A", "B"].forEach(team => {
+    for (let playerIndex = 0; playerIndex < 4; playerIndex++) {
+      const playerName = matchData.teams[team][playerIndex] || `Joueur ${playerIndex + 1}`;
 
-      for (let j = 0; j < 3; j++) {
-        for (let k = 0; k < 5; k++) {
-          row += `<td><input type="number" id="${team}_${i}_${j}_${k}"></td>`;
+      let row = `
+        <tr class="team${team}">
+          <td>${team}</td>
+          <td>${playerName}</td>
+      `;
+
+      let grandTotal = 0;
+
+      for (let gameIndex = 0; gameIndex < 3; gameIndex++) {
+        let partTotal = 0;
+
+        for (let scoreIndex = 0; scoreIndex < 5; scoreIndex++) {
+          const scoreId = `${team}_${playerIndex}_${gameIndex}_${scoreIndex}`;
+          const value = matchData.scores[scoreId] || "";
+          const numberValue = parseInt(value) || 0;
+
+          partTotal += numberValue;
+
+          row += `
+            <td>
+              <input
+                type="number"
+                min="0"
+                value="${value}"
+                data-score-id="${scoreId}"
+                class="score-input"
+                ${isAdmin ? "" : "disabled"}
+              >
+            </td>
+          `;
         }
-        row += `<td id="total_${team}_${i}_${j}"></td>`;
+
+        grandTotal += partTotal;
+        row += `<td><strong>${partTotal}</strong></td>`;
       }
 
-      row += `<td id="grand_${team}_${i}"></td></tr>`;
+      row += `<td><strong>${grandTotal}</strong></td></tr>`;
       tbody.innerHTML += row;
     }
   });
+
+  attachScoreListeners();
 }
 
-function calculate() {
-  ['A','B'].forEach(team => {
-    for (let i = 0; i < 4; i++) {
-      let grand = 0;
-      for (let j = 0; j < 3; j++) {
-        let part = 0;
-        for (let k = 0; k < 5; k++) {
-          const val = parseInt(document.getElementById(`${team}_${i}_${j}_${k}`)?.value) || 0;
-          part += val;
-        }
-        document.getElementById(`total_${team}_${i}_${j}`).innerText = part;
-        grand += part;
-      }
-      document.getElementById(`grand_${team}_${i}`).innerText = grand;
-    }
+
+/* ================================
+   7. ÉCOUTE DES SCORES
+   ================================ */
+
+function attachScoreListeners() {
+  document.querySelectorAll(".score-input").forEach(input => {
+    input.addEventListener("input", () => {
+      if (!isAdmin) return;
+
+      const scoreId = input.dataset.scoreId;
+      matchData.scores[scoreId] = input.value;
+
+      saveData();
+      generateTable();
+    });
   });
 }
+
+
+/* ================================
+   8. SAUVEGARDE FIREBASE
+   ================================ */
+
+function saveData() {
+  if (!isAdmin) return;
+  matchRef.set(matchData);
+}
+
+
+/* ================================
+   9. CHARGEMENT TEMPS RÉEL FIREBASE
+   ================================ */
+
+matchRef.on("value", snapshot => {
+  const data = snapshot.val();
+
+  if (data) {
+    matchData = data;
+  }
+
+  updateFormFields();
+  generateTable();
+});
+
+
+/* ================================
+   10. MISE À JOUR DES CHAMPS
+   ================================ */
+
+function updateFormFields() {
+  document.getElementById("competitionName").value = matchData.competitionName || "";
+  document.getElementById("competitionDate").value = matchData.competitionDate || "";
+
+  document.querySelectorAll(".player-name").forEach(input => {
+    const team = input.dataset.team;
+    const index = input.dataset.index;
+    input.value = matchData.teams[team][index] || "";
+  });
+
+  if (!isAdmin) {
+    document.querySelectorAll("input").forEach(input => {
+      input.disabled = true;
+    });
+
+    document.getElementById("resetBtn").style.display = "none";
+  }
+}
+
+
+/* ================================
+   11. ÉCOUTE INFOS COMPÉTITION
+   ================================ */
+
+document.getElementById("competitionName").addEventListener("input", e => {
+  if (!isAdmin) return;
+  matchData.competitionName = e.target.value;
+  saveData();
+});
+
+document.getElementById("competitionDate").addEventListener("input", e => {
+  if (!isAdmin) return;
+  matchData.competitionDate = e.target.value;
+  saveData();
+});
+
+
+/* ================================
+   12. ÉCOUTE NOMS DES JOUEURS
+   ================================ */
+
+document.querySelectorAll(".player-name").forEach(input => {
+  input.addEventListener("input", () => {
+    if (!isAdmin) return;
+
+    const team = input.dataset.team;
+    const index = input.dataset.index;
+
+    matchData.teams[team][index] = input.value;
+
+    saveData();
+    generateTable();
+  });
+});
+
+
+/* ================================
+   13. RÉINITIALISATION
+   ================================ */
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!isAdmin) return;
+
+  const confirmation = confirm("Voulez-vous vraiment réinitialiser toute la compétition ?");
+
+  if (!confirmation) return;
+
+  matchData = {
+    competitionName: "",
+    competitionDate: "",
+    teams: {
+      A: ["", "", "", ""],
+      B: ["", "", "", ""]
+    },
+    scores: {}
+  };
+
+  saveData();
+  updateFormFields();
+  generateTable();
+});
 </script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAM0lcs5qFa_8NBnIdg7RZdL2TkWK6KQyc",
-  authDomain: "scores-quilles.firebaseapp.com",
-  projectId: "scores-quilles",
-  storageBucket: "scores-quilles.firebasestorage.app",
-  messagingSenderId: "188142820091",
-  appId: "1:188142820091:web:c2493f0b026440e3f66e5e"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
 </body>
 </html>
